@@ -11,6 +11,7 @@ import SwiftUI
 class TaskManager: ObservableObject {
 	@Published var pendingTasks = [Task]()
 	@Published var completedTasks = [Task]()
+	@Published var newTaskManager = NewTask.manager
 	
 		// TODO: remove this, make it dynamic with injection
 	init() {
@@ -36,7 +37,7 @@ class TaskManager: ObservableObject {
 		}
 	}
 	
-	private func move(from: IndexSet, to: Int, list: inout [Task] ) {
+	private func move(from: IndexSet, to: Int, list: inout [Task]) {
 		list.move(fromOffsets: from, toOffset: to)
 	}
 	
@@ -44,7 +45,32 @@ class TaskManager: ObservableObject {
 		pendingTasks.remove(atOffsets: offsets)
 	}
 	
+	func addTask() {
+		guard let task = newTaskManager.make() else { return }
+		pendingTasks.append(task)
+	}
+	
 	enum TaskType {
 		case pending, completed
+	}
+}
+
+class NewTask: ObservableObject {
+	@Published var title: String = ""
+	@Published var description: String = ""
+	
+	// one instance is enough, so we make it singleton
+	static let manager = NewTask()
+	
+	private init() { }
+	
+	
+	func make() -> Task? {
+		if title.isEmpty { return nil }
+		let task = Task(title: title, description: description)
+		title = ""
+		description = ""
+		
+		return task
 	}
 }

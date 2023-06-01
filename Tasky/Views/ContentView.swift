@@ -14,12 +14,28 @@ struct ContentView: View {
 		NavigationView {
 			List {
 				Section("Pending") {
+					// Add item
+					HStack(alignment: .top) {
+						Image(systemName: "plus.circle.fill")
+							.foregroundColor(.green)
+							.onTapGesture(perform: viewModel.addTask)
+						VStack {
+							TextField("Title", text: $viewModel.newTaskManager.title)
+							TextField("Description", text: $viewModel.newTaskManager.description)
+						}
+					}
+					
+					// list items
 					ForEach(viewModel.pendingTasks, id: \.self) { task in
 						Button(action: {
 							viewModel.markAsDone(task: task)
 						}) {
-							Text(task.title)
-								.foregroundColor(.primary)
+							VStack(alignment: .leading, spacing: 5) {
+								Text(task.title)
+									.foregroundColor(.primary)
+								Text(task.description)
+									.foregroundColor(.secondary)
+							}
 						}
 					}
 						// reorder items from on point to another
@@ -34,8 +50,13 @@ struct ContentView: View {
 				
 				Section("Completed") {
 					ForEach(viewModel.completedTasks, id: \.self) { task in
-						Text(task.title)
-							.foregroundColor(.secondary)
+						VStack(alignment: .leading, spacing: 5) {
+							Text(task.title)
+								.foregroundColor(.secondary)
+							Text(task.description)
+								.foregroundColor(.secondary)
+								.fontWeight(.light)
+						}
 					}
 						// reorder items from on point to another
 					.onMove { source, destination in
@@ -46,6 +67,7 @@ struct ContentView: View {
 			.toolbar {
 				EditButton()
 			}
+			.onTapGesture(perform: hideKeyboard)
 			.navigationTitle("Tasks")
 		}
 	}
@@ -60,9 +82,9 @@ struct ContentView_Previews: PreviewProvider {
 
 
 
-/*
- ● The user should be able to add new tasks with a title and description.
- ● The user should be able to view all tasks in a list view.
- ● The user should be able to mark a task as completed.
- ● The user should be able to filter tasks by completion status (completed or not completed).
- */
+extension View {
+		/// Resigns first responder when called.
+	func hideKeyboard() {
+		UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+	}
+}
