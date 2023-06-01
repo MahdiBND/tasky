@@ -14,11 +14,9 @@ struct ContentView: View {
 		NavigationView {
 			List {
 				Section("Pending") {
-					ForEach(viewModel.pendingTasks) { task in
+					ForEach(viewModel.pendingTasks, id: \.self) { task in
 						Button(action: {
-							withAnimation {
-								viewModel.markAsDone(task: task)
-							}
+							viewModel.markAsDone(task: task)
 						}) {
 							Text(task.title)
 								.foregroundColor(.primary)
@@ -28,11 +26,14 @@ struct ContentView: View {
 					.onMove { source, destination in
 						viewModel.move(from: source, to: destination, .pending)
 					}
+					.onDelete { indexSet in
+						viewModel.delete(at: indexSet)
+					}
 					
 				}
 				
 				Section("Completed") {
-					ForEach(viewModel.completedTasks) { task in
+					ForEach(viewModel.completedTasks, id: \.self) { task in
 						Text(task.title)
 							.foregroundColor(.secondary)
 					}
@@ -42,7 +43,6 @@ struct ContentView: View {
 					}
 				}
 			}
-			.id(UUID())
 			.toolbar {
 				EditButton()
 			}

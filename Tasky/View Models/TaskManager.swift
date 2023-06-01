@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftUI
 
 class TaskManager: ObservableObject {
 	@Published var pendingTasks = [Task]()
@@ -19,11 +20,13 @@ class TaskManager: ObservableObject {
 	}
 	
 	func markAsDone(task: Task) {
-		pendingTasks.removeAll { $0.id == task.id }
+		guard let index = pendingTasks.firstIndex(of: task) else { return }
+		pendingTasks[index].isFinished = true
+		let task = pendingTasks.remove(at: index)
 		completedTasks.append(task)
 	}
 	
-	
+	// List jobs methods - move, delete, etc...
 	func move(from: IndexSet, to: Int, _ type: TaskType) {
 		switch type {
 			case .pending:
@@ -35,6 +38,10 @@ class TaskManager: ObservableObject {
 	
 	private func move(from: IndexSet, to: Int, list: inout [Task] ) {
 		list.move(fromOffsets: from, toOffset: to)
+	}
+	
+	func delete(at offsets: IndexSet) {
+		pendingTasks.remove(atOffsets: offsets)
 	}
 	
 	enum TaskType {
